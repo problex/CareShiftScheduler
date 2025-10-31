@@ -11,8 +11,8 @@ export default function AddShiftModalExample() {
       <AddShiftModal
         open={open}
         onClose={() => setOpen(false)}
-        onAddShift={(timeSlot, category) => {
-          console.log('Add shift:', timeSlot, category);
+        onAddShift={(timeSlot, shiftName, category) => {
+          console.log('Add shift:', timeSlot, shiftName, category);
           setOpen(false);
         }}
         selectedDate="Mon, Dec 18"

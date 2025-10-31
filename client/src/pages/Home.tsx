@@ -8,6 +8,7 @@ interface Shift {
   id: string;
   date: string;
   timeSlot: string;
+  shiftName?: string;
   category: "pe-home" | "paul";
 }
 
@@ -16,7 +17,7 @@ export default function Home() {
     startOfWeek(new Date(), { weekStartsOn: 1 })
   );
   const [shifts, setShifts] = useState<Shift[]>([
-    { id: '1', date: format(new Date(), 'yyyy-MM-dd'), timeSlot: '7am - 3pm', category: 'pe-home' },
+    { id: '1', date: format(new Date(), 'yyyy-MM-dd'), timeSlot: '7am - 3pm', shiftName: 'Day', category: 'pe-home' },
   ]);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>("");
@@ -60,11 +61,12 @@ export default function Home() {
     setModalOpen(true);
   };
 
-  const handleConfirmAddShift = (timeSlot: string, category: string) => {
+  const handleConfirmAddShift = (timeSlot: string, shiftName: string, category: string) => {
     const newShift: Shift = {
       id: Date.now().toString(),
       date: selectedDate,
       timeSlot,
+      shiftName,
       category: category as "pe-home" | "paul",
     };
     setShifts([...shifts, newShift]);

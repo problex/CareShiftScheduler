@@ -11,7 +11,7 @@ import { timeSlots, categories } from "@shared/schema";
 interface AddShiftModalProps {
   open: boolean;
   onClose: () => void;
-  onAddShift: (timeSlot: string, category: string) => void;
+  onAddShift: (timeSlot: string, shiftName: string, category: string) => void;
   selectedDate: string;
 }
 
@@ -26,7 +26,9 @@ export default function AddShiftModal({
 
   const handleAddShift = () => {
     if (selectedTimeSlot) {
-      onAddShift(selectedTimeSlot, selectedCategory);
+      const slot = timeSlots.find(s => s.value === selectedTimeSlot);
+      const shiftName = slot?.name || "";
+      onAddShift(selectedTimeSlot, shiftName, selectedCategory);
       setSelectedTimeSlot(null);
       onClose();
     }
@@ -47,11 +49,12 @@ export default function AddShiftModal({
                 <Button
                   key={slot.value}
                   variant={selectedTimeSlot === slot.value ? "default" : "outline"}
-                  className="h-14 text-sm font-medium"
+                  className="h-14 text-sm font-medium flex flex-col items-center justify-center gap-0.5"
                   onClick={() => setSelectedTimeSlot(slot.value)}
                   data-testid={`button-timeslot-${slot.value}`}
                 >
-                  {slot.label}
+                  <span className="text-xs opacity-80">{slot.name}</span>
+                  <span>{slot.label}</span>
                 </Button>
               ))}
             </div>

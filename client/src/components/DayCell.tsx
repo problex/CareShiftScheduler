@@ -5,6 +5,7 @@ import { Plus } from "lucide-react";
 interface Shift {
   id: string;
   timeSlot: string;
+  shiftName?: string;
   category: "pe-home" | "paul";
 }
 
@@ -60,6 +61,7 @@ export default function DayCell({
             >
               <ShiftCard
                 timeSlot={shift.timeSlot}
+                shiftName={shift.shiftName}
                 category={shift.category}
                 onDelete={() => {
                   onDeleteShift(shift.id);

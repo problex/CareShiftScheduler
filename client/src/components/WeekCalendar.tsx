@@ -4,6 +4,7 @@ interface Shift {
   id: string;
   date: string;
   timeSlot: string;
+  shiftName?: string;
   category: "pe-home" | "paul";
 }
 

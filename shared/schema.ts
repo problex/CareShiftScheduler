@@ -32,10 +32,10 @@ export type InsertShift = z.infer<typeof insertShiftSchema>;
 export type Shift = typeof shifts.$inferSelect;
 
 export const timeSlots = [
-  { value: "6am-7am", label: "6am - 7am" },
-  { value: "7am-3pm", label: "7am - 3pm" },
-  { value: "3pm-11pm", label: "3pm - 11pm" },
-  { value: "11pm-12am", label: "11pm - 12am" },
+  { value: "6am-7am", label: "6am - 7am", name: "Day" },
+  { value: "7am-3pm", label: "7am - 3pm", name: "Day" },
+  { value: "3pm-11pm", label: "3pm - 11pm", name: "Evening" },
+  { value: "11pm-12am", label: "11pm - 12am", name: "Evening" },
 ] as const;
 
 export const categories = [

@@ -12,10 +12,10 @@ export default function WeekCalendarExample() {
   ];
 
   const shifts = [
-    { id: '1', date: '2024-12-18', timeSlot: '7am - 3pm', category: 'pe-home' as const },
-    { id: '2', date: '2024-12-18', timeSlot: '3pm - 11pm', category: 'paul' as const },
-    { id: '3', date: '2024-12-20', timeSlot: '6am - 7am', category: 'pe-home' as const },
-    { id: '4', date: '2024-12-22', timeSlot: '11pm - 12am', category: 'paul' as const },
+    { id: '1', date: '2024-12-18', timeSlot: '7am - 3pm', shiftName: 'Day', category: 'pe-home' as const },
+    { id: '2', date: '2024-12-18', timeSlot: '3pm - 11pm', shiftName: 'Evening', category: 'paul' as const },
+    { id: '3', date: '2024-12-20', timeSlot: '6am - 7am', shiftName: 'Day', category: 'pe-home' as const },
+    { id: '4', date: '2024-12-22', timeSlot: '11pm - 12am', shiftName: 'Evening', category: 'paul' as const },
   ];
 
   return (

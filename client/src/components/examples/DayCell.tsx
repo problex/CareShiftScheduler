@@ -2,8 +2,8 @@ import DayCell from '../DayCell';
 
 export default function DayCellExample() {
   const shifts = [
-    { id: '1', timeSlot: '7am - 3pm', category: 'pe-home' as const },
-    { id: '2', timeSlot: '3pm - 11pm', category: 'paul' as const },
+    { id: '1', timeSlot: '7am - 3pm', shiftName: 'Day', category: 'pe-home' as const },
+    { id: '2', timeSlot: '3pm - 11pm', shiftName: 'Evening', category: 'paul' as const },
   ];
 
   return (

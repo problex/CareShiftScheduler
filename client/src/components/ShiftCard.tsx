@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 
 interface ShiftCardProps {
   timeSlot: string;
+  shiftName?: string;
   category: "pe-home" | "paul";
   onDelete?: () => void;
 }
 
-export default function ShiftCard({ timeSlot, category, onDelete }: ShiftCardProps) {
+export default function ShiftCard({ timeSlot, shiftName, category, onDelete }: ShiftCardProps) {
   const categoryColors = {
     "pe-home": {
       border: "border-l-category-pe-home",
@@ -33,6 +34,11 @@ export default function ShiftCard({ timeSlot, category, onDelete }: ShiftCardPro
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
+          {shiftName && (
+            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide" data-testid={`text-shift-name-${shiftName}`}>
+              {shiftName}
+            </div>
+          )}
           <div className="font-semibold text-sm text-foreground" data-testid={`text-time-${timeSlot}`}>
             {timeSlot}
           </div>
