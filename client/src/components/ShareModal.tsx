@@ -8,10 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Copy, Printer, Check, Link as LinkIcon, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format, parseISO } from "date-fns";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface Shift {
   id: string;
@@ -28,18 +29,45 @@ interface ShareModalProps {
 }
 
 export default function ShareModal({ open, onClose, shifts }: ShareModalProps) {
+  const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const [shareLink, setShareLink] = useState<string | null>(null);
 
+  // Reset state when modal closes
+  useEffect(() => {
+    if (!open) {
+      setShareLink(null);
+      setCopied(false);
+      setLinkCopied(false);
+    }
+  }, [open]);
+
   const createShareLink = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest("POST", "/api/share", { shifts }) as unknown as { shareId: string };
-      return response;
+      const response = await apiRequest("POST", "/api/share", { shifts });
+      const data = await response.json();
+      return data as { shareId: string };
     },
     onSuccess: (data) => {
-      const url = `${window.location.origin}/share/${data.shareId}`;
-      setShareLink(url);
+      if (data && data.shareId) {
+        const url = `${window.location.origin}/share/${data.shareId}`;
+        setShareLink(url);
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to generate share link",
+          variant: "destructive",
+        });
+      }
+    },
+    onError: (error) => {
+      console.error("Failed to create share link:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate share link. Please try again.",
+        variant: "destructive",
+      });
     },
   });
 
