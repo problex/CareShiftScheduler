@@ -26,6 +26,21 @@ export default function ShiftCard({ timeSlot, shiftName, category, onDelete }: S
 
   const colors = categoryColors[category];
   const categoryLabel = category === "pe-home" ? "PE Home" : "Paul";
+  
+  // Determine shift type based on time slot
+  const getShiftTypeLabel = () => {
+    const daySlots = ["6am-7am", "7am-3pm"];
+    const eveningSlots = ["3pm-11pm", "11pm-12am"];
+    
+    if (daySlots.includes(timeSlot)) {
+      return "☀️ Day";
+    } else if (eveningSlots.includes(timeSlot)) {
+      return "🌙 Evening";
+    }
+    return shiftName || "";
+  };
+  
+  const shiftTypeLabel = getShiftTypeLabel();
 
   return (
     <Card
@@ -34,9 +49,9 @@ export default function ShiftCard({ timeSlot, shiftName, category, onDelete }: S
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
-          {shiftName && (
-            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide" data-testid={`text-shift-name-${shiftName}`}>
-              {shiftName}
+          {shiftTypeLabel && (
+            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide" data-testid={`text-shift-name-${shiftTypeLabel}`}>
+              {shiftTypeLabel}
             </div>
           )}
           <div className="font-semibold text-sm text-foreground" data-testid={`text-time-${timeSlot}`}>

@@ -77,6 +77,19 @@ export default function MonthCalendar({
                     "paul": "bg-category-paul text-white",
                   };
 
+                  // Determine shift type label with emoji
+                  const getShiftTypeLabel = () => {
+                    const daySlots = ["6am-7am", "7am-3pm"];
+                    const eveningSlots = ["3pm-11pm", "11pm-12am"];
+                    
+                    if (daySlots.includes(shift.timeSlot)) {
+                      return "☀️ Day";
+                    } else if (eveningSlots.includes(shift.timeSlot)) {
+                      return "🌙 Evening";
+                    }
+                    return shift.shiftName || shift.timeSlot;
+                  };
+
                   return (
                     <Badge
                       key={shift.id}
@@ -87,7 +100,7 @@ export default function MonthCalendar({
                       data-testid={`badge-shift-${shift.id}`}
                     >
                       <span className="truncate text-xs">
-                        {shift.shiftName || shift.timeSlot}
+                        {getShiftTypeLabel()}
                       </span>
                     </Badge>
                   );
