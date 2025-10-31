@@ -24,12 +24,28 @@ export default function AddShiftModal({
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("pe-home");
 
+  const getCategoryForTimeSlot = (timeSlot: string): string => {
+    if (timeSlot === "7am-3pm" || timeSlot === "3pm-11pm") {
+      return "pe-home";
+    }
+    if (timeSlot === "6am-7am" || timeSlot === "11pm-12am") {
+      return "paul";
+    }
+    return "pe-home";
+  };
+
+  const handleTimeSlotSelect = (timeSlot: string) => {
+    setSelectedTimeSlot(timeSlot);
+    setSelectedCategory(getCategoryForTimeSlot(timeSlot));
+  };
+
   const handleAddShift = () => {
     if (selectedTimeSlot) {
       const slot = timeSlots.find(s => s.value === selectedTimeSlot);
       const shiftName = slot?.name || "";
       onAddShift(selectedTimeSlot, shiftName, selectedCategory);
       setSelectedTimeSlot(null);
+      setSelectedCategory("pe-home");
       onClose();
     }
   };
@@ -50,7 +66,7 @@ export default function AddShiftModal({
                   key={slot.value}
                   variant={selectedTimeSlot === slot.value ? "default" : "outline"}
                   className="h-14 text-sm font-medium flex flex-col items-center justify-center gap-0.5"
-                  onClick={() => setSelectedTimeSlot(slot.value)}
+                  onClick={() => handleTimeSlotSelect(slot.value)}
                   data-testid={`button-timeslot-${slot.value}`}
                 >
                   <span className="text-xs opacity-80">{slot.name}</span>
@@ -70,11 +86,15 @@ export default function AddShiftModal({
                   className="flex-1 h-12"
                   onClick={() => setSelectedCategory(cat.value)}
                   data-testid={`button-category-${cat.value}`}
+                  disabled={true}
                 >
                   {cat.label}
                 </Button>
               ))}
             </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Category is automatically selected based on shift time
+            </p>
           </div>
 
           <div className="flex gap-2 pt-2">
