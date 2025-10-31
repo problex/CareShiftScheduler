@@ -4,7 +4,10 @@ import MonthNavigator from "@/components/MonthNavigator";
 import WeekCalendar from "@/components/WeekCalendar";
 import MonthCalendar from "@/components/MonthCalendar";
 import AddShiftModal from "@/components/AddShiftModal";
+import ShareModal from "@/components/ShareModal";
 import ViewToggle from "@/components/ViewToggle";
+import { Button } from "@/components/ui/button";
+import { Share2 } from "lucide-react";
 import {
   format,
   startOfWeek,
@@ -40,6 +43,7 @@ export default function Home() {
     { id: '1', date: format(new Date(), 'yyyy-MM-dd'), timeSlot: '7am - 3pm', shiftName: 'Day', category: 'pe-home' },
   ]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>("");
 
   const getDaysOfWeek = () => {
@@ -147,7 +151,15 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       <div className="sticky top-0 z-50 bg-background border-b">
         <div className="flex items-center justify-between p-4 gap-4">
-          <div className="flex-1" />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShareModalOpen(true)}
+            data-testid="button-share"
+          >
+            <Share2 className="h-4 w-4 mr-2" />
+            Share
+          </Button>
           <ViewToggle view={view} onViewChange={setView} />
           <div className="flex-1" />
         </div>
@@ -190,6 +202,12 @@ export default function Home() {
         onClose={() => setModalOpen(false)}
         onAddShift={handleConfirmAddShift}
         selectedDate={formatSelectedDate()}
+      />
+
+      <ShareModal
+        open={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        shifts={shifts}
       />
     </div>
   );
