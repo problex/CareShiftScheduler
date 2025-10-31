@@ -42,3 +42,18 @@ export const categories = [
   { value: "pe-home", label: "PE Home" },
   { value: "paul", label: "Paul" },
 ] as const;
+
+export const sharedCalendars = pgTable("shared_calendars", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  shareId: text("share_id").notNull().unique(),
+  shifts: text("shifts").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const insertSharedCalendarSchema = createInsertSchema(sharedCalendars).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertSharedCalendar = z.infer<typeof insertSharedCalendarSchema>;
+export type SharedCalendar = typeof sharedCalendars.$inferSelect;
