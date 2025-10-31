@@ -1,8 +1,26 @@
 import { useState } from "react";
 import WeekNavigator from "@/components/WeekNavigator";
+import MonthNavigator from "@/components/MonthNavigator";
 import WeekCalendar from "@/components/WeekCalendar";
+import MonthCalendar from "@/components/MonthCalendar";
 import AddShiftModal from "@/components/AddShiftModal";
-import { format, startOfWeek, addDays, addWeeks, subWeeks, isToday, isBefore, startOfDay } from "date-fns";
+import ViewToggle from "@/components/ViewToggle";
+import {
+  format,
+  startOfWeek,
+  startOfMonth,
+  endOfMonth,
+  addDays,
+  addWeeks,
+  subWeeks,
+  addMonths,
+  subMonths,
+  isToday,
+  isBefore,
+  startOfDay,
+  isSameMonth,
+  getDay,
+} from "date-fns";
 
 interface Shift {
   id: string;
@@ -13,9 +31,11 @@ interface Shift {
 }
 
 export default function Home() {
+  const [view, setView] = useState<"week" | "month">("week");
   const [currentWeekStart, setCurrentWeekStart] = useState(
     startOfWeek(new Date(), { weekStartsOn: 1 })
   );
+  const [currentMonth, setCurrentMonth] = useState(new Date());
   const [shifts, setShifts] = useState<Shift[]>([
     { id: '1', date: format(new Date(), 'yyyy-MM-dd'), timeSlot: '7am - 3pm', shiftName: 'Day', category: 'pe-home' },
   ]);
@@ -39,9 +59,38 @@ export default function Home() {
     return days;
   };
 
+  const getDaysOfMonth = () => {
+    const days = [];
+    const today = startOfDay(new Date());
+    const monthStart = startOfMonth(currentMonth);
+    const monthEnd = endOfMonth(currentMonth);
+    
+    const startDay = getDay(monthStart);
+    const adjustedStartDay = startDay === 0 ? 6 : startDay - 1;
+    
+    const calendarStart = addDays(monthStart, -adjustedStartDay);
+    
+    for (let i = 0; i < 35; i++) {
+      const day = addDays(calendarStart, i);
+      days.push({
+        date: parseInt(format(day, 'd')),
+        fullDate: format(day, 'yyyy-MM-dd'),
+        isToday: isToday(day),
+        isPast: isBefore(day, today),
+        isCurrentMonth: isSameMonth(day, currentMonth),
+      });
+    }
+    
+    return days;
+  };
+
   const getWeekRange = () => {
     const end = addDays(currentWeekStart, 6);
     return `${format(currentWeekStart, 'MMM d')} - ${format(end, 'MMM d, yyyy')}`;
+  };
+
+  const getMonthYear = () => {
+    return format(currentMonth, 'MMMM yyyy');
   };
 
   const handlePreviousWeek = () => {
@@ -52,8 +101,20 @@ export default function Home() {
     setCurrentWeekStart(addWeeks(currentWeekStart, 1));
   };
 
-  const handleToday = () => {
+  const handlePreviousMonth = () => {
+    setCurrentMonth(subMonths(currentMonth, 1));
+  };
+
+  const handleNextMonth = () => {
+    setCurrentMonth(addMonths(currentMonth, 1));
+  };
+
+  const handleTodayWeek = () => {
     setCurrentWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }));
+  };
+
+  const handleTodayMonth = () => {
+    setCurrentMonth(new Date());
   };
 
   const handleAddShift = (date: string) => {
@@ -84,19 +145,45 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      <WeekNavigator
-        weekRange={getWeekRange()}
-        onPreviousWeek={handlePreviousWeek}
-        onNextWeek={handleNextWeek}
-        onToday={handleToday}
-      />
-      
-      <WeekCalendar
-        days={getDaysOfWeek()}
-        shifts={shifts}
-        onAddShift={handleAddShift}
-        onDeleteShift={handleDeleteShift}
-      />
+      <div className="sticky top-0 z-50 bg-background border-b">
+        <div className="flex items-center justify-between p-4 gap-4">
+          <div className="flex-1" />
+          <ViewToggle view={view} onViewChange={setView} />
+          <div className="flex-1" />
+        </div>
+      </div>
+
+      {view === "week" ? (
+        <>
+          <WeekNavigator
+            weekRange={getWeekRange()}
+            onPreviousWeek={handlePreviousWeek}
+            onNextWeek={handleNextWeek}
+            onToday={handleTodayWeek}
+          />
+          <WeekCalendar
+            days={getDaysOfWeek()}
+            shifts={shifts}
+            onAddShift={handleAddShift}
+            onDeleteShift={handleDeleteShift}
+          />
+        </>
+      ) : (
+        <>
+          <MonthNavigator
+            monthYear={getMonthYear()}
+            onPreviousMonth={handlePreviousMonth}
+            onNextMonth={handleNextMonth}
+            onToday={handleTodayMonth}
+          />
+          <MonthCalendar
+            days={getDaysOfMonth()}
+            shifts={shifts}
+            onAddShift={handleAddShift}
+            onDeleteShift={handleDeleteShift}
+          />
+        </>
+      )}
 
       <AddShiftModal
         open={modalOpen}
