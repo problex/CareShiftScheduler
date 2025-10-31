@@ -1,59 +1,62 @@
-import { type User, type InsertUser, type SharedCalendar, type InsertSharedCalendar } from "@shared/schema";
-import { randomUUID } from "crypto";
-
-// modify the interface with any CRUD methods
-// you might need
+// Reference: blueprint:javascript_log_in_with_replit, blueprint:javascript_database
+import { 
+  users,
+  sharedCalendars,
+  type User, 
+  type UpsertUser, 
+  type SharedCalendar, 
+  type InsertSharedCalendar 
+} from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
+  // User operations (required for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  upsertUser(user: UpsertUser): Promise<User>;
+  // Shared calendar operations
   getSharedCalendar(shareId: string): Promise<SharedCalendar | undefined>;
   createSharedCalendar(calendar: InsertSharedCalendar): Promise<SharedCalendar>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-  private sharedCalendars: Map<string, SharedCalendar>;
-
-  constructor() {
-    this.users = new Map();
-    this.sharedCalendars = new Map();
-  }
-
+export class DatabaseStorage implements IStorage {
+  // User operations (required for Replit Auth)
   async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
   }
 
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
+  }
+
+  // Shared calendar operations
   async getSharedCalendar(shareId: string): Promise<SharedCalendar | undefined> {
-    return Array.from(this.sharedCalendars.values()).find(
-      (calendar) => calendar.shareId === shareId,
-    );
+    const [calendar] = await db
+      .select()
+      .from(sharedCalendars)
+      .where(eq(sharedCalendars.shareId, shareId));
+    return calendar;
   }
 
   async createSharedCalendar(insertCalendar: InsertSharedCalendar): Promise<SharedCalendar> {
-    const id = randomUUID();
-    const calendar: SharedCalendar = {
-      ...insertCalendar,
-      id,
-      createdAt: new Date(),
-    };
-    this.sharedCalendars.set(id, calendar);
+    const [calendar] = await db
+      .insert(sharedCalendars)
+      .values(insertCalendar)
+      .returning();
     return calendar;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

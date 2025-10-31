@@ -7,7 +7,9 @@ import AddShiftModal from "@/components/AddShiftModal";
 import ShareModal from "@/components/ShareModal";
 import ViewToggle from "@/components/ViewToggle";
 import { Button } from "@/components/ui/button";
-import { Share2 } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Share2, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import {
   format,
   startOfWeek,
@@ -34,17 +36,32 @@ interface Shift {
 }
 
 export default function Home() {
+  const { user } = useAuth();
   const [view, setView] = useState<"week" | "month">("week");
   const [currentWeekStart, setCurrentWeekStart] = useState(
     startOfWeek(new Date(), { weekStartsOn: 1 })
   );
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [shifts, setShifts] = useState<Shift[]>([
-    { id: '1', date: format(new Date(), 'yyyy-MM-dd'), timeSlot: '7am - 3pm', shiftName: 'Day', category: 'pe-home' },
-  ]);
+  const [shifts, setShifts] = useState<Shift[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>("");
+
+  const handleLogout = () => {
+    window.location.href = "/api/logout";
+  };
+
+  const getUserInitials = () => {
+    if (!user) return "U";
+    const firstName = user.firstName || "";
+    const lastName = user.lastName || "";
+    if (firstName && lastName) {
+      return `${firstName[0]}${lastName[0]}`.toUpperCase();
+    }
+    if (firstName) return firstName[0].toUpperCase();
+    if (user.email) return user.email[0].toUpperCase();
+    return "U";
+  };
 
   const getDaysOfWeek = () => {
     const days = [];
@@ -161,7 +178,21 @@ export default function Home() {
             Share
           </Button>
           <ViewToggle view={view} onViewChange={setView} />
-          <div className="flex-1" />
+          <div className="flex items-center gap-3 ml-auto">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={user?.profileImageUrl || undefined} />
+              <AvatarFallback>{getUserInitials()}</AvatarFallback>
+            </Avatar>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              data-testid="button-logout"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Log Out
+            </Button>
+          </div>
         </div>
       </div>
 
