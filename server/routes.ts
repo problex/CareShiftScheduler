@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertSharedCalendarSchema } from "@shared/schema";
+import { insertShiftSchema, insertSharedCalendarSchema } from "@shared/schema";
 import { nanoid } from "nanoid";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 
@@ -22,21 +22,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create a shareable calendar link (protected route)
+  // Get all shifts for the authenticated user
+  app.get("/api/shifts", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const shifts = await storage.getUserShifts(userId);
+      res.json(shifts);
+    } catch (error) {
+      console.error("Error fetching shifts:", error);
+      res.status(500).json({ error: "Failed to fetch shifts" });
+    }
+  });
+
+  // Create a new shift for the authenticated user
+  app.post("/api/shifts", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const validatedData = insertShiftSchema.parse({ ...req.body, userId });
+      const shift = await storage.createShift(validatedData);
+      res.json(shift);
+    } catch (error) {
+      console.error("Error creating shift:", error);
+      res.status(400).json({ error: "Failed to create shift" });
+    }
+  });
+
+  // Delete a shift for the authenticated user
+  app.delete("/api/shifts/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { id } = req.params;
+      await storage.deleteShift(id, userId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting shift:", error);
+      res.status(500).json({ error: "Failed to delete shift" });
+    }
+  });
+
+  // Create or get a shareable calendar link (protected route)
+  // Now stores userId reference instead of shift snapshot for live updates
   app.post("/api/share", isAuthenticated, async (req: any, res) => {
     try {
-      const { shifts } = req.body;
       const userId = req.user.claims.sub;
       
-      if (!shifts || !Array.isArray(shifts)) {
-        return res.status(400).json({ error: "Invalid shifts data" });
-      }
-
+      // Check if user already has a share link
       const shareId = nanoid(10);
       const sharedCalendar = await storage.createSharedCalendar({
         userId,
         shareId,
-        shifts: JSON.stringify(shifts),
+        shifts: "", // Empty string - we'll fetch live shifts instead
       });
 
       res.json({ shareId: sharedCalendar.shareId });
@@ -46,7 +81,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get a shared calendar by shareId
+  // Get a shared calendar by shareId - now fetches live shifts from user
   app.get("/api/share/:shareId", async (req, res) => {
     try {
       const { shareId } = req.params;
@@ -56,8 +91,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Shared calendar not found" });
       }
 
+      // Fetch live shifts from the user who created the share link
+      const liveShifts = await storage.getUserShifts(sharedCalendar.userId);
+
       res.json({
-        shifts: JSON.parse(sharedCalendar.shifts),
+        shifts: liveShifts,
         createdAt: sharedCalendar.createdAt,
       });
     } catch (error) {

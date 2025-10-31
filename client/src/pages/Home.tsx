@@ -10,6 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Share2, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import {
   format,
   startOfWeek,
@@ -37,15 +40,91 @@ interface Shift {
 
 export default function Home() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [view, setView] = useState<"week" | "month">("week");
   const [currentWeekStart, setCurrentWeekStart] = useState(
     startOfWeek(new Date(), { weekStartsOn: 1 })
   );
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [shifts, setShifts] = useState<Shift[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>("");
+
+  // Fetch shifts from API
+  const { data: shifts = [], isLoading } = useQuery<Shift[]>({
+    queryKey: ["/api/shifts"],
+    enabled: !!user,
+  });
+
+  // Create shift mutation
+  const createShiftMutation = useMutation({
+    mutationFn: async (shiftData: { date: string; timeSlot: string; category: string }) => {
+      const response = await apiRequest("POST", "/api/shifts", shiftData);
+      if (!response.ok) {
+        let errorMessage = "Failed to create shift";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          const errorText = await response.text();
+          errorMessage = errorText || errorMessage;
+        }
+        throw new Error(errorMessage);
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/shifts"] });
+      toast({
+        title: "Shift added",
+        description: "Your shift has been saved successfully.",
+      });
+    },
+    onError: (error) => {
+      console.error("Failed to create shift:", error);
+      const message = error instanceof Error ? error.message : "Failed to add shift. Please try again.";
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete shift mutation
+  const deleteShiftMutation = useMutation({
+    mutationFn: async (shiftId: string) => {
+      const response = await apiRequest("DELETE", `/api/shifts/${shiftId}`);
+      if (!response.ok) {
+        let errorMessage = "Failed to delete shift";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          const errorText = await response.text();
+          errorMessage = errorText || errorMessage;
+        }
+        throw new Error(errorMessage);
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/shifts"] });
+      toast({
+        title: "Shift deleted",
+        description: "Your shift has been removed.",
+      });
+    },
+    onError: (error) => {
+      console.error("Failed to delete shift:", error);
+      const message = error instanceof Error ? error.message : "Failed to delete shift. Please try again.";
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleLogout = () => {
     window.location.href = "/api/logout";
@@ -144,18 +223,15 @@ export default function Home() {
   };
 
   const handleConfirmAddShift = (timeSlot: string, shiftName: string, category: string) => {
-    const newShift: Shift = {
-      id: Date.now().toString(),
+    createShiftMutation.mutate({
       date: selectedDate,
       timeSlot,
-      shiftName,
-      category: category as "pe-home" | "paul",
-    };
-    setShifts([...shifts, newShift]);
+      category,
+    });
   };
 
   const handleDeleteShift = (shiftId: string) => {
-    setShifts(shifts.filter((shift) => shift.id !== shiftId));
+    deleteShiftMutation.mutate(shiftId);
   };
 
   const formatSelectedDate = () => {
@@ -163,6 +239,14 @@ export default function Home() {
     const date = new Date(selectedDate);
     return format(date, 'EEE, MMM d');
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Loading your shifts...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">

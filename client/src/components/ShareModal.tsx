@@ -25,7 +25,7 @@ interface Shift {
 interface ShareModalProps {
   open: boolean;
   onClose: () => void;
-  shifts: Shift[];
+  shifts: Shift[]; // Still needed for text export
 }
 
 export default function ShareModal({ open, onClose, shifts }: ShareModalProps) {
@@ -45,7 +45,8 @@ export default function ShareModal({ open, onClose, shifts }: ShareModalProps) {
 
   const createShareLink = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest("POST", "/api/share", { shifts });
+      // No need to send shifts - backend will link to user's live data
+      const response = await apiRequest("POST", "/api/share", {});
       const data = await response.json();
       return data as { shareId: string };
     },
