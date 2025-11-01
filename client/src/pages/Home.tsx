@@ -36,6 +36,7 @@ interface Shift {
   timeSlot: string;
   shiftName?: string;
   category: "pe-home" | "paul";
+  notes?: string;
 }
 
 export default function Home() {
@@ -58,7 +59,7 @@ export default function Home() {
 
   // Create shift mutation
   const createShiftMutation = useMutation({
-    mutationFn: async (shiftData: { date: string; timeSlot: string; category: string }) => {
+    mutationFn: async (shiftData: { date: string; timeSlot: string; category: string; notes?: string }) => {
       const response = await apiRequest("POST", "/api/shifts", shiftData);
       if (!response.ok) {
         let errorMessage = "Failed to create shift";
@@ -222,11 +223,12 @@ export default function Home() {
     setModalOpen(true);
   };
 
-  const handleConfirmAddShift = (timeSlot: string, shiftName: string, category: string) => {
+  const handleConfirmAddShift = (timeSlot: string, shiftName: string, category: string, notes?: string) => {
     createShiftMutation.mutate({
       date: selectedDate,
       timeSlot,
       category,
+      notes,
     });
   };
 

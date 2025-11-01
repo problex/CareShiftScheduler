@@ -5,13 +5,15 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { timeSlots, categories } from "@shared/schema";
 
 interface AddShiftModalProps {
   open: boolean;
   onClose: () => void;
-  onAddShift: (timeSlot: string, shiftName: string, category: string) => void;
+  onAddShift: (timeSlot: string, shiftName: string, category: string, notes?: string) => void;
   selectedDate: string;
 }
 
@@ -23,6 +25,7 @@ export default function AddShiftModal({
 }: AddShiftModalProps) {
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("pe-home");
+  const [notes, setNotes] = useState<string>("");
 
   const getCategoryForTimeSlot = (timeSlot: string): string => {
     if (timeSlot === "7am-3pm" || timeSlot === "3pm-11pm") {
@@ -43,9 +46,10 @@ export default function AddShiftModal({
     if (selectedTimeSlot) {
       const slot = timeSlots.find(s => s.value === selectedTimeSlot);
       const shiftName = slot?.name || "";
-      onAddShift(selectedTimeSlot, shiftName, selectedCategory);
+      onAddShift(selectedTimeSlot, shiftName, selectedCategory, notes);
       setSelectedTimeSlot(null);
       setSelectedCategory("pe-home");
+      setNotes("");
       onClose();
     }
   };
@@ -95,6 +99,21 @@ export default function AddShiftModal({
             <p className="text-xs text-muted-foreground mt-2">
               Category is automatically selected based on shift time
             </p>
+          </div>
+
+          <div>
+            <Label htmlFor="notes" className="text-sm font-semibold">
+              Notes (Optional)
+            </Label>
+            <Textarea
+              id="notes"
+              placeholder="Add any notes about this shift..."
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="mt-2 resize-none"
+              rows={3}
+              data-testid="input-notes"
+            />
           </div>
 
           <div className="flex gap-2 pt-2">
