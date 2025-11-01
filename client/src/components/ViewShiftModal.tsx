@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
+import { X, Sun, Moon } from "lucide-react";
 import { format } from "date-fns";
 
 interface ViewShiftModalProps {
@@ -45,17 +45,23 @@ export default function ViewShiftModal({
   const colors = categoryColors[shift.category];
   const categoryLabel = shift.category === "pe-home" ? "PE Home" : "Paul";
   
-  const getShiftTypeLabel = () => {
+  const getShiftType = () => {
     const daySlots = ["6am-7am", "7am-3pm"];
     const eveningSlots = ["3pm-11pm", "11pm-12am"];
     
     if (daySlots.includes(shift.timeSlot)) {
-      return "☀️ Day";
+      return { label: "Day", icon: Sun };
     } else if (eveningSlots.includes(shift.timeSlot)) {
-      return "🌙 Evening";
+      return { label: "Evening", icon: Moon };
     }
-    return shift.shiftName || "";
+    // Return custom shift name if available
+    if (shift.shiftName) {
+      return { label: shift.shiftName, icon: null };
+    }
+    return null;
   };
+  
+  const shiftType = getShiftType();
 
   const formattedDate = format(new Date(shift.date), 'EEEE, MMMM d, yyyy');
 
@@ -78,9 +84,12 @@ export default function ViewShiftModal({
             <div className="space-y-2">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <div className="text-sm font-medium text-muted-foreground uppercase">
-                    {getShiftTypeLabel()}
-                  </div>
+                  {shiftType && (
+                    <div className="flex items-center gap-1 text-sm font-medium text-muted-foreground uppercase">
+                      {shiftType.icon && <shiftType.icon className="h-3 w-3" />}
+                      {shiftType.label}
+                    </div>
+                  )}
                   <div className="text-2xl font-semibold mt-1" data-testid="text-view-time">
                     {shift.timeSlot}
                   </div>
