@@ -18,6 +18,7 @@ interface ViewShiftModalProps {
     timeSlot: string;
     shiftName?: string;
     category: "pe-home" | "paul";
+    pay?: string;
     notes?: string;
   } | null;
   onDelete?: (shiftId: string) => void;
@@ -108,6 +109,18 @@ export default function ViewShiftModal({
               </div>
             </div>
           </div>
+
+          {shift.pay && (
+            <div>
+              <h3 className="text-sm font-semibold mb-2">Pay Amount</h3>
+              <div 
+                className="p-3 rounded-md bg-muted text-lg font-semibold"
+                data-testid="text-view-pay"
+              >
+                ${parseFloat(shift.pay).toFixed(2)}
+              </div>
+            </div>
+          )}
 
           {shift.notes && (
             <div>

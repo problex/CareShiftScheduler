@@ -32,6 +32,7 @@ interface Shift {
   timeSlot: string;
   shiftName?: string;
   category: "pe-home" | "paul";
+  pay?: string;
   notes?: string;
 }
 
