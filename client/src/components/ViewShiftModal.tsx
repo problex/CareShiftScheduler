@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -6,7 +7,10 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { X, Sun, Moon } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { X, Sun, Moon, Edit2, Save } from "lucide-react";
 import { format } from "date-fns";
 
 interface ViewShiftModalProps {
@@ -22,6 +26,7 @@ interface ViewShiftModalProps {
     notes?: string;
   } | null;
   onDelete?: (shiftId: string) => void;
+  onUpdate?: (shiftId: string, pay?: string, notes?: string) => void;
 }
 
 export default function ViewShiftModal({
@@ -29,7 +34,20 @@ export default function ViewShiftModal({
   onClose,
   shift,
   onDelete,
+  onUpdate,
 }: ViewShiftModalProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editPay, setEditPay] = useState("");
+  const [editNotes, setEditNotes] = useState("");
+
+  useEffect(() => {
+    if (shift) {
+      setEditPay(shift.pay || "");
+      setEditNotes(shift.notes || "");
+      setIsEditing(false);
+    }
+  }, [shift]);
+
   if (!shift) return null;
 
   const categoryColors = {
@@ -73,6 +91,21 @@ export default function ViewShiftModal({
     }
   };
 
+  const handleSave = () => {
+    if (onUpdate) {
+      const payValue = editPay && editPay.trim() !== "" ? editPay : undefined;
+      const notesValue = editNotes && editNotes.trim() !== "" ? editNotes : undefined;
+      onUpdate(shift.id, payValue, notesValue);
+      setIsEditing(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setEditPay(shift.pay || "");
+    setEditNotes(shift.notes || "");
+    setIsEditing(false);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md" data-testid="modal-view-shift">
@@ -110,49 +143,120 @@ export default function ViewShiftModal({
             </div>
           </div>
 
-          {shift.pay && (
-            <div>
-              <h3 className="text-sm font-semibold mb-2">Pay Amount</h3>
-              <div 
-                className="p-3 rounded-md bg-muted text-lg font-semibold"
-                data-testid="text-view-pay"
-              >
-                ${parseFloat(shift.pay).toFixed(2)}
+          {isEditing ? (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="edit-pay">Pay Amount</Label>
+                <Input
+                  id="edit-pay"
+                  type="number"
+                  step="0.01"
+                  placeholder="0.00"
+                  value={editPay}
+                  onChange={(e) => setEditPay(e.target.value)}
+                  data-testid="input-edit-pay"
+                />
               </div>
-            </div>
-          )}
 
-          {shift.notes && (
-            <div>
-              <h3 className="text-sm font-semibold mb-2">Notes</h3>
-              <div 
-                className="p-3 rounded-md bg-muted text-sm whitespace-pre-wrap"
-                data-testid="text-view-notes"
-              >
-                {shift.notes}
+              <div className="space-y-2">
+                <Label htmlFor="edit-notes">Notes</Label>
+                <Textarea
+                  id="edit-notes"
+                  placeholder="Add notes about this shift..."
+                  value={editNotes}
+                  onChange={(e) => setEditNotes(e.target.value)}
+                  rows={3}
+                  data-testid="input-edit-notes"
+                />
               </div>
-            </div>
+            </>
+          ) : (
+            <>
+              {shift.pay && (
+                <div>
+                  <h3 className="text-sm font-semibold mb-2">Pay Amount</h3>
+                  <div 
+                    className="p-3 rounded-md bg-muted text-lg font-semibold"
+                    data-testid="text-view-pay"
+                  >
+                    ${parseFloat(shift.pay).toFixed(2)}
+                  </div>
+                </div>
+              )}
+
+              {shift.notes && (
+                <div>
+                  <h3 className="text-sm font-semibold mb-2">Notes</h3>
+                  <div 
+                    className="p-3 rounded-md bg-muted text-sm whitespace-pre-wrap"
+                    data-testid="text-view-notes"
+                  >
+                    {shift.notes}
+                  </div>
+                </div>
+              )}
+
+              {!shift.pay && !shift.notes && (
+                <div className="text-sm text-muted-foreground text-center py-4">
+                  No pay or notes added yet. Click Edit to add them.
+                </div>
+              )}
+            </>
           )}
 
           <div className="flex gap-2 pt-2">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={onClose}
-              data-testid="button-close"
-            >
-              Close
-            </Button>
-            {onDelete && (
-              <Button
-                variant="destructive"
-                className="flex-1"
-                onClick={handleDelete}
-                data-testid="button-delete-shift"
-              >
-                <X className="h-4 w-4 mr-2" />
-                Delete Shift
-              </Button>
+            {isEditing ? (
+              <>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={handleCancel}
+                  data-testid="button-cancel-edit"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  className="flex-1"
+                  onClick={handleSave}
+                  data-testid="button-save-edit"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Changes
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={onClose}
+                  data-testid="button-close"
+                >
+                  Close
+                </Button>
+                {onUpdate && (
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setIsEditing(true)}
+                    data-testid="button-edit-shift"
+                  >
+                    <Edit2 className="h-4 w-4 mr-2" />
+                    Edit
+                  </Button>
+                )}
+                {onDelete && (
+                  <Button
+                    variant="destructive"
+                    className="flex-1"
+                    onClick={handleDelete}
+                    data-testid="button-delete-shift"
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    Delete
+                  </Button>
+                )}
+              </>
             )}
           </div>
         </div>
