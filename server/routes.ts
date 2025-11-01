@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertShiftSchema, insertSharedCalendarSchema } from "@shared/schema";
+import { insertShiftSchema, updateShiftSchema, insertSharedCalendarSchema } from "@shared/schema";
 import { nanoid } from "nanoid";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 
@@ -44,6 +44,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error creating shift:", error);
       res.status(400).json({ error: "Failed to create shift" });
+    }
+  });
+
+  // Update a shift for the authenticated user
+  app.patch("/api/shifts/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { id } = req.params;
+      const validatedData = updateShiftSchema.parse(req.body);
+      const shift = await storage.updateShift(id, userId, validatedData);
+      if (!shift) {
+        return res.status(404).json({ error: "Shift not found" });
+      }
+      res.json(shift);
+    } catch (error) {
+      console.error("Error updating shift:", error);
+      res.status(400).json({ error: "Failed to update shift" });
     }
   });
 

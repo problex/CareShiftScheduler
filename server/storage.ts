@@ -6,7 +6,8 @@ import {
   type User, 
   type UpsertUser,
   type Shift,
-  type InsertShift, 
+  type InsertShift,
+  type UpdateShift,
   type SharedCalendar, 
   type InsertSharedCalendar 
 } from "@shared/schema";
@@ -20,6 +21,7 @@ export interface IStorage {
   // Shift operations
   getUserShifts(userId: string): Promise<Shift[]>;
   createShift(shift: InsertShift): Promise<Shift>;
+  updateShift(id: string, userId: string, updateData: UpdateShift): Promise<Shift | undefined>;
   deleteShift(id: string, userId: string): Promise<void>;
   // Shared calendar operations
   getSharedCalendar(shareId: string): Promise<SharedCalendar | undefined>;
@@ -62,6 +64,15 @@ export class DatabaseStorage implements IStorage {
     const [shift] = await db
       .insert(shifts)
       .values(shiftData)
+      .returning();
+    return shift;
+  }
+
+  async updateShift(id: string, userId: string, updateData: UpdateShift): Promise<Shift | undefined> {
+    const [shift] = await db
+      .update(shifts)
+      .set(updateData)
+      .where(and(eq(shifts.id, id), eq(shifts.userId, userId)))
       .returning();
     return shift;
   }
