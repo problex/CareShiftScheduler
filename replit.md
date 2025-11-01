@@ -34,7 +34,8 @@ Preferred communication style: Simple, everyday language.
 - Mobile-first responsive design with single-column layouts
 - Inter font family from Google Fonts CDN for consistent typography
 - Color-coded shift categories (PE Home and Paul) for instant visual recognition
-- Week starts on Monday to align with typical work week patterns
+- Week starts on Sunday (Sunday-Saturday format)
+- Shift type labels with emojis (☀️ Day for 6am-3pm shifts, 🌙 Evening for 3pm-12am shifts)
 
 ### Backend Architecture
 
