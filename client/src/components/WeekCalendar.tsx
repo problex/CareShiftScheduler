@@ -6,6 +6,7 @@ interface Shift {
   timeSlot: string;
   shiftName?: string;
   category: "pe-home" | "paul";
+  notes?: string;
 }
 
 interface DayData {
@@ -21,6 +22,7 @@ interface WeekCalendarProps {
   shifts: Shift[];
   onAddShift: (date: string) => void;
   onDeleteShift: (shiftId: string) => void;
+  onViewShift?: (shift: Shift) => void;
 }
 
 export default function WeekCalendar({
@@ -28,6 +30,7 @@ export default function WeekCalendar({
   shifts,
   onAddShift,
   onDeleteShift,
+  onViewShift,
 }: WeekCalendarProps) {
   const getShiftsForDate = (date: string) => {
     return shifts.filter((shift) => shift.date === date);
@@ -46,6 +49,7 @@ export default function WeekCalendar({
             isPast={day.isPast}
             onAddShift={() => onAddShift(day.fullDate)}
             onDeleteShift={onDeleteShift}
+            onViewShift={onViewShift}
           />
         ))}
       </div>

@@ -7,6 +7,7 @@ interface Shift {
   timeSlot: string;
   shiftName?: string;
   category: "pe-home" | "paul";
+  notes?: string;
 }
 
 interface DayData {
@@ -22,12 +23,14 @@ interface MonthCalendarProps {
   shifts: Shift[];
   onAddShift: (date: string) => void;
   onDeleteShift: (shiftId: string) => void;
+  onViewShift?: (shift: Shift) => void;
 }
 
 export default function MonthCalendar({
   days,
   shifts,
   onAddShift,
+  onViewShift,
 }: MonthCalendarProps) {
   const getShiftsForDate = (date: string) => {
     return shifts.filter((shift) => shift.date === date);
@@ -93,9 +96,12 @@ export default function MonthCalendar({
                   return (
                     <Badge
                       key={shift.id}
-                      className={`w-full text-xs justify-start px-1 py-0 h-5 ${categoryColors[shift.category]} no-default-hover-elevate no-default-active-elevate`}
+                      className={`w-full text-xs justify-start px-1 py-0 h-5 ${categoryColors[shift.category]} ${onViewShift ? 'cursor-pointer hover-elevate active-elevate-2' : ''} no-default-hover-elevate no-default-active-elevate`}
                       onClick={(e) => {
                         e.stopPropagation();
+                        if (onViewShift) {
+                          onViewShift(shift);
+                        }
                       }}
                       data-testid={`badge-shift-${shift.id}`}
                     >

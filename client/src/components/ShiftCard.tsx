@@ -8,9 +8,10 @@ interface ShiftCardProps {
   shiftName?: string;
   category: "pe-home" | "paul";
   onDelete?: () => void;
+  onView?: () => void;
 }
 
-export default function ShiftCard({ timeSlot, shiftName, category, onDelete }: ShiftCardProps) {
+export default function ShiftCard({ timeSlot, shiftName, category, onDelete, onView }: ShiftCardProps) {
   const categoryColors = {
     "pe-home": {
       border: "border-l-category-pe-home",
@@ -44,8 +45,9 @@ export default function ShiftCard({ timeSlot, shiftName, category, onDelete }: S
 
   return (
     <Card
-      className={`p-2 border-l-4 ${colors.border} ${colors.bg} hover-elevate group relative`}
+      className={`p-2 border-l-4 ${colors.border} ${colors.bg} ${onView ? 'hover-elevate active-elevate-2 cursor-pointer' : 'hover-elevate'} group relative`}
       data-testid={`card-shift-${timeSlot}-${category}`}
+      onClick={onView}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
@@ -70,7 +72,10 @@ export default function ShiftCard({ timeSlot, shiftName, category, onDelete }: S
             size="icon"
             variant="ghost"
             className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={onDelete}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
             data-testid={`button-delete-shift-${timeSlot}`}
           >
             <X className="h-3 w-3" />

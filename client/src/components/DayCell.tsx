@@ -4,9 +4,11 @@ import { Plus } from "lucide-react";
 
 interface Shift {
   id: string;
+  date: string;
   timeSlot: string;
   shiftName?: string;
   category: "pe-home" | "paul";
+  notes?: string;
 }
 
 interface DayCellProps {
@@ -17,6 +19,7 @@ interface DayCellProps {
   isPast?: boolean;
   onAddShift: () => void;
   onDeleteShift: (shiftId: string) => void;
+  onViewShift?: (shift: Shift) => void;
 }
 
 export default function DayCell({
@@ -27,6 +30,7 @@ export default function DayCell({
   isPast = false,
   onAddShift,
   onDeleteShift,
+  onViewShift,
 }: DayCellProps) {
   return (
     <Card
@@ -66,6 +70,7 @@ export default function DayCell({
                 onDelete={() => {
                   onDeleteShift(shift.id);
                 }}
+                onView={onViewShift ? () => onViewShift(shift) : undefined}
               />
             </div>
           ))

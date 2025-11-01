@@ -6,6 +6,7 @@ import MonthCalendar from "@/components/MonthCalendar";
 import ViewToggle from "@/components/ViewToggle";
 import WeekNavigator from "@/components/WeekNavigator";
 import MonthNavigator from "@/components/MonthNavigator";
+import ViewShiftModal from "@/components/ViewShiftModal";
 import { Card } from "@/components/ui/card";
 import { AlertCircle, Calendar } from "lucide-react";
 import {
@@ -31,6 +32,7 @@ interface Shift {
   timeSlot: string;
   shiftName?: string;
   category: "pe-home" | "paul";
+  notes?: string;
 }
 
 export default function SharedView() {
@@ -42,6 +44,8 @@ export default function SharedView() {
     startOfWeek(new Date(), { weekStartsOn: 0 })
   );
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [viewShiftModalOpen, setViewShiftModalOpen] = useState(false);
+  const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
 
   const { data, isLoading, error } = useQuery<{ shifts: Shift[], createdAt: Date }>({
     queryKey: ["/api/share", shareId],
@@ -125,6 +129,11 @@ export default function SharedView() {
     setCurrentMonth(new Date());
   };
 
+  const handleViewShift = (shift: Shift) => {
+    setSelectedShift(shift);
+    setViewShiftModalOpen(true);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -186,6 +195,7 @@ export default function SharedView() {
             shifts={shifts}
             onAddShift={() => {}}
             onDeleteShift={() => {}}
+            onViewShift={handleViewShift}
           />
         </>
       ) : (
@@ -201,9 +211,16 @@ export default function SharedView() {
             shifts={shifts}
             onAddShift={() => {}}
             onDeleteShift={() => {}}
+            onViewShift={handleViewShift}
           />
         </>
       )}
+
+      <ViewShiftModal
+        open={viewShiftModalOpen}
+        onClose={() => setViewShiftModalOpen(false)}
+        shift={selectedShift}
+      />
     </div>
   );
 }

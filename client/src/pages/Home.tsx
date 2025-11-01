@@ -5,6 +5,7 @@ import WeekCalendar from "@/components/WeekCalendar";
 import MonthCalendar from "@/components/MonthCalendar";
 import AddShiftModal from "@/components/AddShiftModal";
 import ShareModal from "@/components/ShareModal";
+import ViewShiftModal from "@/components/ViewShiftModal";
 import ViewToggle from "@/components/ViewToggle";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -49,7 +50,9 @@ export default function Home() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [modalOpen, setModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [viewShiftModalOpen, setViewShiftModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>("");
+  const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
 
   // Fetch shifts from API
   const { data: shifts = [], isLoading } = useQuery<Shift[]>({
@@ -236,6 +239,11 @@ export default function Home() {
     deleteShiftMutation.mutate(shiftId);
   };
 
+  const handleViewShift = (shift: Shift) => {
+    setSelectedShift(shift);
+    setViewShiftModalOpen(true);
+  };
+
   const formatSelectedDate = () => {
     if (!selectedDate) return "";
     const date = new Date(selectedDate);
@@ -295,6 +303,7 @@ export default function Home() {
             shifts={shifts}
             onAddShift={handleAddShift}
             onDeleteShift={handleDeleteShift}
+            onViewShift={handleViewShift}
           />
         </>
       ) : (
@@ -310,6 +319,7 @@ export default function Home() {
             shifts={shifts}
             onAddShift={handleAddShift}
             onDeleteShift={handleDeleteShift}
+            onViewShift={handleViewShift}
           />
         </>
       )}
@@ -325,6 +335,13 @@ export default function Home() {
         open={shareModalOpen}
         onClose={() => setShareModalOpen(false)}
         shifts={shifts}
+      />
+
+      <ViewShiftModal
+        open={viewShiftModalOpen}
+        onClose={() => setViewShiftModalOpen(false)}
+        shift={selectedShift}
+        onDelete={handleDeleteShift}
       />
     </div>
   );
