@@ -232,8 +232,8 @@ export default function Home() {
       date: selectedDate,
       timeSlot,
       category,
-      notes,
-      pay,
+      notes: notes || undefined,
+      pay: pay && pay.trim() !== "" ? pay : undefined,
     });
   };
 
