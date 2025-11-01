@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a shift scheduling application designed specifically for care workers to manage their work shifts across two categories: PE Home and Paul. The app provides calendar views (week and month) for easy shift visualization, quick one-tap shift entry, and the ability to share schedules via shareable links. Built as a mobile-first web application with a focus on speed and simplicity.
+This is a shift scheduling application designed specifically for care workers to manage their work shifts across two categories: PE Home and Paul. The app provides calendar views (week and month) for easy shift visualization, quick one-tap shift entry, pay tracking per shift, a date range pay calculator for summing earnings, and the ability to share schedules via shareable links. Built as a mobile-first web application with a focus on speed and simplicity.
 
 ## User Preferences
 
@@ -37,6 +37,7 @@ Preferred communication style: Simple, everyday language.
 - Week starts on Sunday (Sunday-Saturday format)
 - Shift type labels with Lucide React icons (Sun icon for Day shifts: 6am-7am, 7am-3pm; Moon icon for Evening shifts: 3pm-11pm, 11pm-12am)
 - Pay tracking: Users can enter a dollar amount for each shift above the notes field
+- Pay calculator: Collapsible section at top of Home page allows users to calculate total pay between any start and end date
 - Notes feature allows users to add optional notes to shifts, viewable by clicking on shift cards
 
 ### Backend Architecture
@@ -72,12 +73,14 @@ Preferred communication style: Simple, everyday language.
 - Passport.js strategy for OAuth authentication
 - PostgreSQL-backed session store for persistence
 - Session TTL of 7 days with secure, httpOnly cookies
+- Auth flow optimized to not request consent on repeat logins for better UX
 
 **Key Architectural Decisions**
 - Shifts stored in PostgreSQL database for persistent data across sessions
 - Sharing implemented via live links that reference userId for real-time calendar viewing
 - Stateless API design with session-based auth
 - Pay tracking: Optional numeric field (precision 10, scale 2) to store dollar amounts per shift
+- Pay calculator: Client-side date range filtering and summation with validation for empty/invalid date ranges
 - Notes feature allows optional text annotations on shifts, displayed in ViewShiftModal
 - Empty optional fields (pay, notes) are converted to undefined before API submission to match schema expectations
 - Separation of concerns: UI state in React components, persistent shift data in database
