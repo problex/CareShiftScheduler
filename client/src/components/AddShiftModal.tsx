@@ -5,6 +5,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
@@ -13,7 +14,7 @@ import { timeSlots, categories } from "@shared/schema";
 interface AddShiftModalProps {
   open: boolean;
   onClose: () => void;
-  onAddShift: (timeSlot: string, shiftName: string, category: string, notes?: string) => void;
+  onAddShift: (timeSlot: string, shiftName: string, category: string, notes?: string, pay?: string) => void;
   selectedDate: string;
 }
 
@@ -25,6 +26,7 @@ export default function AddShiftModal({
 }: AddShiftModalProps) {
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("pe-home");
+  const [pay, setPay] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
 
   const getCategoryForTimeSlot = (timeSlot: string): string => {
@@ -46,9 +48,10 @@ export default function AddShiftModal({
     if (selectedTimeSlot) {
       const slot = timeSlots.find(s => s.value === selectedTimeSlot);
       const shiftName = slot?.name || "";
-      onAddShift(selectedTimeSlot, shiftName, selectedCategory, notes);
+      onAddShift(selectedTimeSlot, shiftName, selectedCategory, notes, pay);
       setSelectedTimeSlot(null);
       setSelectedCategory("pe-home");
+      setPay("");
       setNotes("");
       onClose();
     }
@@ -99,6 +102,26 @@ export default function AddShiftModal({
             <p className="text-xs text-muted-foreground mt-2">
               Category is automatically selected based on shift time
             </p>
+          </div>
+
+          <div>
+            <Label htmlFor="pay" className="text-sm font-semibold">
+              Pay Amount (Optional)
+            </Label>
+            <div className="relative mt-2">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+              <Input
+                id="pay"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="0.00"
+                value={pay}
+                onChange={(e) => setPay(e.target.value)}
+                className="pl-7"
+                data-testid="input-pay"
+              />
+            </div>
           </div>
 
           <div>
