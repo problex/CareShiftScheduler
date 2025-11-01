@@ -39,6 +39,7 @@ Preferred communication style: Simple, everyday language.
 - Pay tracking: Users can enter a dollar amount for each shift above the notes field
 - Pay calculator: Collapsible section at top of Home page allows users to calculate total pay between any start and end date
 - Notes feature allows users to add optional notes to shifts, viewable by clicking on shift cards
+- Edit capability: Users can edit or add pay and notes to existing shifts via the shift details modal
 
 ### Backend Architecture
 
@@ -63,6 +64,7 @@ Preferred communication style: Simple, everyday language.
 - `/api/auth/user` - GET current authenticated user
 - `/api/shifts` - GET all shifts for the current user
 - `/api/shifts` - POST to create a new shift (body: {date, timeSlot, category, shiftName?, pay?, notes?})
+- `/api/shifts/:id` - PATCH to update pay and notes for an existing shift (body: {pay?, notes?})
 - `/api/shifts/:id` - DELETE to remove a shift
 - `/api/share` - POST to create shareable calendar link
 - `/api/share/:shareId` - GET to retrieve live shared calendar data for a user
@@ -82,7 +84,9 @@ Preferred communication style: Simple, everyday language.
 - Pay tracking: Optional numeric field (precision 10, scale 2) to store dollar amounts per shift
 - Pay calculator: Client-side date range filtering and summation with validation for empty/invalid date ranges
 - Notes feature allows optional text annotations on shifts, displayed in ViewShiftModal
-- Empty optional fields (pay, notes) are converted to undefined before API submission to match schema expectations
+- Edit functionality: Users can update pay and notes via PATCH endpoint; empty values send null to clear fields
+- Modal state management: Shift updates immediately refresh the modal display without requiring reopening
+- Empty optional fields (pay, notes) are converted to null for updates (clearing) or undefined for creation
 - Separation of concerns: UI state in React components, persistent shift data in database
 
 ### External Dependencies
