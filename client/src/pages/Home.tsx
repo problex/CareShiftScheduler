@@ -103,6 +103,41 @@ export default function Home() {
     },
   });
 
+  // Update shift mutation
+  const updateShiftMutation = useMutation({
+    mutationFn: async ({ shiftId, pay, notes }: { shiftId: string; pay?: string; notes?: string }) => {
+      const response = await apiRequest("PATCH", `/api/shifts/${shiftId}`, { pay, notes });
+      if (!response.ok) {
+        let errorMessage = "Failed to update shift";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          const errorText = await response.text();
+          errorMessage = errorText || errorMessage;
+        }
+        throw new Error(errorMessage);
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/shifts"] });
+      toast({
+        title: "Shift updated",
+        description: "Your changes have been saved.",
+      });
+    },
+    onError: (error) => {
+      console.error("Failed to update shift:", error);
+      const message = error instanceof Error ? error.message : "Failed to update shift. Please try again.";
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+    },
+  });
+
   // Delete shift mutation
   const deleteShiftMutation = useMutation({
     mutationFn: async (shiftId: string) => {
@@ -242,6 +277,10 @@ export default function Home() {
       notes: notes || undefined,
       pay: pay && pay.trim() !== "" ? pay : undefined,
     });
+  };
+
+  const handleUpdateShift = (shiftId: string, pay?: string, notes?: string) => {
+    updateShiftMutation.mutate({ shiftId, pay, notes });
   };
 
   const handleDeleteShift = (shiftId: string) => {
@@ -452,6 +491,7 @@ export default function Home() {
         onClose={() => setViewShiftModalOpen(false)}
         shift={selectedShift}
         onDelete={handleDeleteShift}
+        onUpdate={handleUpdateShift}
       />
     </div>
   );
