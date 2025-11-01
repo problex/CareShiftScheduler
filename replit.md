@@ -36,6 +36,7 @@ Preferred communication style: Simple, everyday language.
 - Color-coded shift categories (PE Home and Paul) for instant visual recognition
 - Week starts on Sunday (Sunday-Saturday format)
 - Shift type labels with Lucide React icons (Sun icon for Day shifts: 6am-7am, 7am-3pm; Moon icon for Evening shifts: 3pm-11pm, 11pm-12am)
+- Pay tracking: Users can enter a dollar amount for each shift above the notes field
 - Notes feature allows users to add optional notes to shifts, viewable by clicking on shift cards
 
 ### Backend Architecture
@@ -54,13 +55,13 @@ Preferred communication style: Simple, everyday language.
 **Database Schema**
 - `users` table: Stores user profiles from Replit Auth
 - `sessions` table: Manages authentication sessions (required for Replit Auth)
-- `shifts` table: Stores all user shifts with date, timeSlot, category, shiftName, and optional notes field
+- `shifts` table: Stores all user shifts with date, timeSlot, category, shiftName, optional pay field (numeric with 2 decimal places), and optional notes field
 - `sharedCalendars` table: Stores shareable calendar links with userId references for live calendar sharing
 
 **API Structure**
 - `/api/auth/user` - GET current authenticated user
 - `/api/shifts` - GET all shifts for the current user
-- `/api/shifts` - POST to create a new shift (body: {date, timeSlot, category, shiftName?, notes?})
+- `/api/shifts` - POST to create a new shift (body: {date, timeSlot, category, shiftName?, pay?, notes?})
 - `/api/shifts/:id` - DELETE to remove a shift
 - `/api/share` - POST to create shareable calendar link
 - `/api/share/:shareId` - GET to retrieve live shared calendar data for a user
@@ -76,7 +77,9 @@ Preferred communication style: Simple, everyday language.
 - Shifts stored in PostgreSQL database for persistent data across sessions
 - Sharing implemented via live links that reference userId for real-time calendar viewing
 - Stateless API design with session-based auth
+- Pay tracking: Optional numeric field (precision 10, scale 2) to store dollar amounts per shift
 - Notes feature allows optional text annotations on shifts, displayed in ViewShiftModal
+- Empty optional fields (pay, notes) are converted to undefined before API submission to match schema expectations
 - Separation of concerns: UI state in React components, persistent shift data in database
 
 ### External Dependencies
