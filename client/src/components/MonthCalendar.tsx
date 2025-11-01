@@ -33,7 +33,7 @@ export default function MonthCalendar({
     return shifts.filter((shift) => shift.date === date);
   };
 
-  const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
     <div className="p-4">

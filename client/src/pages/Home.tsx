@@ -43,7 +43,7 @@ export default function Home() {
   const { toast } = useToast();
   const [view, setView] = useState<"week" | "month">("week");
   const [currentWeekStart, setCurrentWeekStart] = useState(
-    startOfWeek(new Date(), { weekStartsOn: 1 })
+    startOfWeek(new Date(), { weekStartsOn: 0 })
   );
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [modalOpen, setModalOpen] = useState(false);
@@ -166,7 +166,7 @@ export default function Home() {
     const monthEnd = endOfMonth(currentMonth);
     
     const startDay = getDay(monthStart);
-    const adjustedStartDay = startDay === 0 ? 6 : startDay - 1;
+    const adjustedStartDay = startDay;
     
     const calendarStart = addDays(monthStart, -adjustedStartDay);
     
@@ -210,7 +210,7 @@ export default function Home() {
   };
 
   const handleTodayWeek = () => {
-    setCurrentWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }));
+    setCurrentWeekStart(startOfWeek(new Date(), { weekStartsOn: 0 }));
   };
 
   const handleTodayMonth = () => {
