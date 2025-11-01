@@ -35,7 +35,8 @@ Preferred communication style: Simple, everyday language.
 - Inter font family from Google Fonts CDN for consistent typography
 - Color-coded shift categories (PE Home and Paul) for instant visual recognition
 - Week starts on Sunday (Sunday-Saturday format)
-- Shift type labels with emojis (☀️ Day for 6am-3pm shifts, 🌙 Evening for 3pm-12am shifts)
+- Shift type labels with Lucide React icons (Sun icon for Day shifts: 6am-7am, 7am-3pm; Moon icon for Evening shifts: 3pm-11pm, 11pm-12am)
+- Notes feature allows users to add optional notes to shifts, viewable by clicking on shift cards
 
 ### Backend Architecture
 
@@ -53,13 +54,16 @@ Preferred communication style: Simple, everyday language.
 **Database Schema**
 - `users` table: Stores user profiles from Replit Auth
 - `sessions` table: Manages authentication sessions (required for Replit Auth)
-- `sharedCalendars` table: Stores shareable calendar snapshots with unique share IDs
-- Note: Shifts are stored client-side only (no persistence) with JSON serialization for sharing
+- `shifts` table: Stores all user shifts with date, timeSlot, category, shiftName, and optional notes field
+- `sharedCalendars` table: Stores shareable calendar links with userId references for live calendar sharing
 
 **API Structure**
 - `/api/auth/user` - GET current authenticated user
+- `/api/shifts` - GET all shifts for the current user
+- `/api/shifts` - POST to create a new shift (body: {date, timeSlot, category, shiftName?, notes?})
+- `/api/shifts/:id` - DELETE to remove a shift
 - `/api/share` - POST to create shareable calendar link
-- `/api/share/:shareId` - GET to retrieve shared calendar data
+- `/api/share/:shareId` - GET to retrieve live shared calendar data for a user
 - All data routes protected by authentication middleware except public share views
 
 **Authentication Flow**
@@ -69,10 +73,11 @@ Preferred communication style: Simple, everyday language.
 - Session TTL of 7 days with secure, httpOnly cookies
 
 **Key Architectural Decisions**
-- Shifts stored client-side to minimize database writes and improve performance
-- Sharing implemented via snapshot approach (JSON serialization) rather than live sync
+- Shifts stored in PostgreSQL database for persistent data across sessions
+- Sharing implemented via live links that reference userId for real-time calendar viewing
 - Stateless API design with session-based auth
-- Separation of concerns: client state in browser, persistent user data in database
+- Notes feature allows optional text annotations on shifts, displayed in ViewShiftModal
+- Separation of concerns: UI state in React components, persistent shift data in database
 
 ### External Dependencies
 
