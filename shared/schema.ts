@@ -36,6 +36,7 @@ export const shifts = pgTable("shifts", {
   date: text("date").notNull(),
   timeSlot: text("time_slot").notNull(),
   category: text("category").notNull(),
+  notes: text("notes"),
 });
 
 export const insertShiftSchema = createInsertSchema(shifts).omit({
