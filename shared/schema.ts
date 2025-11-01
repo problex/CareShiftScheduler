@@ -45,8 +45,8 @@ export const insertShiftSchema = createInsertSchema(shifts).omit({
 });
 
 export const updateShiftSchema = z.object({
-  pay: z.string().optional(),
-  notes: z.string().optional(),
+  pay: z.string().nullable().optional(),
+  notes: z.string().nullable().optional(),
 });
 
 export type InsertShift = z.infer<typeof insertShiftSchema>;

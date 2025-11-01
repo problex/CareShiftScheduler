@@ -93,9 +93,7 @@ export default function ViewShiftModal({
 
   const handleSave = () => {
     if (onUpdate) {
-      const payValue = editPay && editPay.trim() !== "" ? editPay : undefined;
-      const notesValue = editNotes && editNotes.trim() !== "" ? editNotes : undefined;
-      onUpdate(shift.id, payValue, notesValue);
+      onUpdate(shift.id, editPay, editNotes);
       setIsEditing(false);
     }
   };
