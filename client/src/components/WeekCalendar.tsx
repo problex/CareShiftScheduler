@@ -6,6 +6,7 @@ interface Shift {
   timeSlot: string;
   shiftName?: string;
   category: "pe-home" | "paul";
+  pay?: string;
   notes?: string;
 }
 
@@ -37,8 +38,8 @@ export default function WeekCalendar({
   };
 
   return (
-    <div className="p-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-4">
+    <div className="p-2 sm:p-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-2 sm:gap-4">
         {days.map((day) => (
           <DayCell
             key={day.fullDate}

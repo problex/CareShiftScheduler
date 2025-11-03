@@ -347,42 +347,42 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       <div className="sticky top-0 z-50 bg-background border-b">
-        <div className="flex items-center justify-between p-4 gap-4">
+        <div className="flex items-center justify-between p-2 sm:p-4 gap-2 sm:gap-4">
           <Button
             variant="outline"
-            size="sm"
             onClick={() => setShareModalOpen(true)}
             data-testid="button-share"
+            className="min-h-11"
           >
-            <Share2 className="h-4 w-4 mr-2" />
-            Share
+            <Share2 className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Share</span>
           </Button>
           <ViewToggle view={view} onViewChange={setView} />
-          <div className="flex items-center gap-3 ml-auto">
+          <div className="flex items-center gap-1 sm:gap-3 ml-auto">
             <Avatar className="h-8 w-8">
               <AvatarImage src={user?.profileImageUrl || undefined} />
               <AvatarFallback>{getUserInitials()}</AvatarFallback>
             </Avatar>
             <Button
               variant="ghost"
-              size="sm"
               onClick={handleLogout}
               data-testid="button-logout"
+              className="min-h-11"
             >
-              <LogOut className="h-4 w-4 mr-2" />
-              Log Out
+              <LogOut className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Log Out</span>
             </Button>
           </div>
         </div>
       </div>
 
-      <div className="px-4 py-3">
+      <div className="px-2 sm:px-4 py-2 sm:py-3">
         <Card>
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Calculator className="h-5 w-5" />
-                <CardTitle className="text-base">Pay Calculator</CardTitle>
+                <Calculator className="h-4 w-4 sm:h-5 sm:w-5" />
+                <CardTitle className="text-sm sm:text-base">Pay Calculator</CardTitle>
               </div>
               <Button
                 variant="ghost"
@@ -399,26 +399,28 @@ export default function Home() {
             </div>
           </CardHeader>
           {payCalculatorOpen && (
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <CardContent className="space-y-3 sm:space-y-4 px-3 sm:px-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="start-date">Start Date</Label>
+                  <Label htmlFor="start-date" className="text-sm">Start Date</Label>
                   <Input
                     id="start-date"
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
                     data-testid="input-start-date"
+                    className="text-sm"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="end-date">End Date</Label>
+                  <Label htmlFor="end-date" className="text-sm">End Date</Label>
                   <Input
                     id="end-date"
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
                     data-testid="input-end-date"
+                    className="text-sm"
                   />
                 </div>
               </div>
@@ -430,9 +432,9 @@ export default function Home() {
                 Calculate Total
               </Button>
               {calculatedTotal !== null && (
-                <div className="p-4 bg-primary/10 rounded-md" data-testid="total-pay-display">
-                  <p className="text-sm text-muted-foreground">Total Pay</p>
-                  <p className="text-2xl font-bold text-primary" data-testid="text-total-pay">
+                <div className="p-3 sm:p-4 bg-primary/10 rounded-md" data-testid="total-pay-display">
+                  <p className="text-xs sm:text-sm text-muted-foreground">Total Pay</p>
+                  <p className="text-xl sm:text-2xl font-bold text-primary" data-testid="text-total-pay">
                     ${calculatedTotal.toFixed(2)}
                   </p>
                 </div>

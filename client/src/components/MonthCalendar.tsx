@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Sun, Moon } from "lucide-react";
 
 interface Shift {
   id: string;
@@ -7,6 +8,7 @@ interface Shift {
   timeSlot: string;
   shiftName?: string;
   category: "pe-home" | "paul";
+  pay?: string;
   notes?: string;
 }
 
@@ -39,12 +41,12 @@ export default function MonthCalendar({
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
-    <div className="p-4">
-      <div className="grid grid-cols-7 gap-2">
+    <div className="p-2 sm:p-4">
+      <div className="grid grid-cols-7 gap-1 sm:gap-2">
         {dayNames.map((day) => (
           <div
             key={day}
-            className="text-center text-xs font-semibold text-muted-foreground uppercase tracking-wide py-2"
+            className="text-center text-xs font-semibold text-muted-foreground uppercase tracking-wide py-1 sm:py-2"
           >
             {day}
           </div>
@@ -56,7 +58,7 @@ export default function MonthCalendar({
           return (
             <Card
               key={day.fullDate}
-              className={`min-h-24 p-2 hover-elevate active-elevate-2 cursor-pointer ${
+              className={`min-h-16 sm:min-h-24 p-1 sm:p-2 hover-elevate active-elevate-2 cursor-pointer ${
                 day.isPast ? "opacity-60" : ""
               } ${day.isToday ? "ring-2 ring-primary" : ""} ${
                 !day.isCurrentMonth ? "bg-muted/30" : ""
@@ -65,7 +67,7 @@ export default function MonthCalendar({
               data-testid={`card-day-${day.fullDate}`}
             >
               <div
-                className={`text-sm font-semibold mb-1 ${
+                className={`text-xs sm:text-sm font-semibold mb-1 ${
                   !day.isCurrentMonth ? "text-muted-foreground" : "text-foreground"
                 }`}
                 data-testid={`text-date-${day.date}`}
@@ -80,23 +82,27 @@ export default function MonthCalendar({
                     "paul": "bg-category-paul text-white",
                   };
 
-                  // Determine shift type label with emoji
-                  const getShiftTypeLabel = () => {
+                  // Determine shift type label with icon
+                  const getShiftTypeInfo = () => {
                     const daySlots = ["6am-7am", "7am-3pm"];
                     const eveningSlots = ["3pm-11pm", "11pm-12am"];
                     
                     if (daySlots.includes(shift.timeSlot)) {
-                      return "☀️ Day";
+                      return { label: "Day", icon: Sun };
                     } else if (eveningSlots.includes(shift.timeSlot)) {
-                      return "🌙 Evening";
+                      return { label: "Evening", icon: Moon };
                     }
-                    return shift.shiftName || shift.timeSlot;
+                    return { label: shift.shiftName || shift.timeSlot, icon: null };
                   };
+                  
+                  const shiftTypeInfo = getShiftTypeInfo();
 
+                  const Icon = shiftTypeInfo.icon;
+                  
                   return (
                     <Badge
                       key={shift.id}
-                      className={`w-full text-xs justify-start px-1 py-0 h-5 ${categoryColors[shift.category]} ${onViewShift ? 'cursor-pointer hover-elevate active-elevate-2' : ''} no-default-hover-elevate no-default-active-elevate`}
+                      className={`w-full text-[10px] sm:text-xs justify-start px-0.5 sm:px-1 py-0 h-4 sm:h-5 ${categoryColors[shift.category]} ${onViewShift ? 'cursor-pointer hover-elevate active-elevate-2' : ''} no-default-hover-elevate no-default-active-elevate`}
                       onClick={(e) => {
                         e.stopPropagation();
                         if (onViewShift) {
@@ -105,14 +111,15 @@ export default function MonthCalendar({
                       }}
                       data-testid={`badge-shift-${shift.id}`}
                     >
-                      <span className="truncate text-xs">
-                        {getShiftTypeLabel()}
+                      <span className="truncate text-[10px] sm:text-xs flex items-center gap-0.5">
+                        {Icon && <Icon className="h-2 w-2 sm:h-2.5 sm:w-2.5 flex-shrink-0" />}
+                        {shiftTypeInfo.label}
                       </span>
                     </Badge>
                   );
                 })}
                 {dayShifts.length > 3 && (
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-[10px] sm:text-xs text-muted-foreground">
                     +{dayShifts.length - 3} more
                   </div>
                 )}
